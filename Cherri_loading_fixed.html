@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { width:100%; height:100%; margin:0; }
+    body { background:#101114; color:#fff; font:14px Arial,sans-serif; }
+    .page { min-height:100%; display:flex; flex-direction:column; }
+    .viewer { position:relative; flex:1; min-height:70vh; }
+    iframe { display:block; width:100%; height:100%; min-height:70vh; border:0; background:#101114; }
+    .loading {
+      position:absolute; inset:0; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:14px;
+      background:#101114; color:#c8cbd4; text-align:center; padding:24px;
+    }
+    .spinner { width:34px; height:34px; border:3px solid #454852; border-top-color:#8ab4ff; border-radius:50%; animation:spin .8s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .fallback { display:none; max-width:560px; line-height:1.5; }
+    .fallback a, .offline-note a {
+      display:inline-block; margin-top:10px; padding:10px 15px; border-radius:7px;
+      background:#8ab4ff; color:#101114; text-decoration:none; font-weight:bold;
+    }
+    .offline-note { padding:12px 18px; background:#191b21; border-top:1px solid #343741; line-height:1.5; }
+    .offline-note p { margin:5px 0; color:#c8cbd4; }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="viewer">
+      <div class="loading" id="loading">
+        <div class="spinner" aria-hidden="true"></div>
+        <div id="status">Loading dashboard…</div>
+        <div class="fallback" id="fallback">
+          <strong>The dashboard could not be displayed inside this page.</strong>
+          <p>The website may block iframe embedding. This cannot be overridden by changing this HTML file. Open the dashboard directly instead.</p>
+          <a href="https://bull.devs.surf/" target="_blank" rel="noopener">Open dashboard</a>
+        </div>
+      </div>
+      <iframe
+        id="dashboard"
+        src="https://bull.devs.surf/"
+        title="Dashboard"
+        allow="fullscreen; clipboard-read; clipboard-write"
+        referrerpolicy="strict-origin-when-cross-origin">
+      </iframe>
+    </section>
+
+    <section class="offline-note">
+      <strong>Offline mode</strong>
+      <p>This page itself can open offline, but the dashboard at bull.devs.surf and its games require an internet connection.</p>
+      <a href="https://bull.devs.surf/" target="_blank" rel="noopener">Open dashboard directly</a>
+    </section>
+  </main>
+
+  <script>
+    // An iframe can fire "load" even when the remote site refuses embedding.
+    // Keep a clear fallback available rather than leaving an endless loader.
+    const loading = document.getElementById('loading');
+    const status = document.getElementById('status');
+    const fallback = document.getElementById('fallback');
+    const frame = document.getElementById('dashboard');
+
+    const timeout = setTimeout(() => {
+      status.textContent = '';
+      document.querySelector('.spinner').style.display = 'none';
+      fallback.style.display = 'block';
+    }, 10000);
+
+    frame.addEventListener('load', () => {
+      // Give the embedded app a moment to render before removing the overlay.
+      setTimeout(() => {
+        clearTimeout(timeout);
+        loading.style.display = 'none';
+      }, 1200);
+    });
+  </script>
+</body>
+</html>
